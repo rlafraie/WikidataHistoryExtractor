@@ -101,7 +101,8 @@ def validate_file_checksum(file, wikidata_dump_date):
 
     filename = file.name
     associated_checksum_filename = filename + "_checksum.txt"
-    associated_checksum_file = Path.cwd() / "checksums_{}".format(wikidata_dump_date) / associated_checksum_filename
+    associated_checksum_file = Path.cwd() / "extraction_process_data" / \
+                               "checksums_{}".format(wikidata_dump_date) / associated_checksum_filename
     with open(associated_checksum_file, mode="rt", encoding="UTF-8") as f:
         checksum = f.read()
 
@@ -575,7 +576,7 @@ def parse_xml_dump(dump_file):
                                                                       claim_triple_list)
                             save_item_revision_to_json_file(dump_file.name, item_id, revision_dict, item_was_redirected)
 
-            if line == "  </page>\n" or line == "    </revision>\n":
+            if line == "    </revision>\n":
                 revision_id = None
                 timestamp = None
                 format = None
@@ -583,12 +584,14 @@ def parse_xml_dump(dump_file):
                 item_dict = None
                 claims = None
                 claim_triple_list = None
+                revision_dict = None
+
+            if line == "  </page>\n":
                 page_id = None
                 item_id = None
                 item_was_redirected = False
                 redir_target_item_id = None
                 redir_item_id = None
-                revision_dict = None
 
 
 def process_dump_file(file):
@@ -680,7 +683,7 @@ def compile_triple_operations(num_cpu_cores):
     watcher = pool.apply_async(writer, (q, output_file))
 
     # Get filters of LaCroix (2020)
-    filter_path = Path.cwd() / "extraction_process_data" / "filters"
+    filter_path = Path.cwd() / "filters"
     filters = {"filtered_entities": read_filter_file(filter_path / "entities_filtered_by_LaCroix_et_al_2020"),
                "filtered_relations": read_filter_file(filter_path / "predicates_filtered_by_LaCroix_et_al_2020")}
 
@@ -795,6 +798,7 @@ def sort_filtered_triple_operations(input_file_name, compress_output=False):
 
     print("Save sorted list to file.")
     output_path = Path.cwd() / "datasets"
+    output_path.mkdir(exist_ok=True)
     output_file_name = "Wikidata9M"
 
     if compress_output:
@@ -838,19 +842,19 @@ def main():
     input_message = "{} CPU cores available. How many do you want to apply?".format(num_of_cores_available)
     num_of_cores_granted = int(input(input_message))
 
-    input_message = "Enter your dump date (YYYYMMDD)."
+    input_message = "Enter your dump date in format YYYYMMDD."
     wikidata_dump_date = input(input_message)
     wikidata_path = Path.cwd() / "extraction_process_data"
     print("Output path is: {}.".format(wikidata_path))
 
-    print("Download XML history dumped at {}.".format(wikidata_dump_date))
+    print("Download Wikidata history dumped at {}.".format(wikidata_dump_date))
     # download_wikidata_history_dumps(wikidata_dump_date)
 
     print("Extract revision information from downloaded XML dumps...")
-    xml_dump_file_list = get_dump_list(wikidata_dump_date)
-    with ProcessPoolExecutor(max_workers=num_of_cores_granted) as executor:
-        for xml_file, _ in zip(xml_dump_file_list, executor.map(process_dump_file, xml_dump_file_list)):
-            print('File {} has been processed successfully: {}'.format(xml_file.name, get_current_timestamp()))
+    # xml_dump_file_list = get_dump_list(wikidata_dump_date)
+    # with ProcessPoolExecutor(max_workers=num_of_cores_granted) as executor:
+    #     for xml_file, _ in zip(xml_dump_file_list, executor.map(process_dump_file, xml_dump_file_list)):
+    #         print('File {} has been processed successfully: {}'.format(xml_file.name, get_current_timestamp()))
 
     print("Extract triple operations from json revision files.")
     json_revision_folder = get_revision_folders_list()
