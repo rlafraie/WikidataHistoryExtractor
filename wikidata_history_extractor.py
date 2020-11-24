@@ -848,13 +848,13 @@ def main():
     print("Output path is: {}.".format(wikidata_path))
 
     print("Download Wikidata history dumped at {}.".format(wikidata_dump_date))
-    # download_wikidata_history_dumps(wikidata_dump_date)
+    download_wikidata_history_dumps(wikidata_dump_date)
 
     print("Extract revision information from downloaded XML dumps...")
-    # xml_dump_file_list = get_dump_list(wikidata_dump_date)
-    # with ProcessPoolExecutor(max_workers=num_of_cores_granted) as executor:
-    #     for xml_file, _ in zip(xml_dump_file_list, executor.map(process_dump_file, xml_dump_file_list)):
-    #         print('File {} has been processed successfully: {}'.format(xml_file.name, get_current_timestamp()))
+    xml_dump_file_list = get_dump_list(wikidata_dump_date)
+    with ProcessPoolExecutor(max_workers=num_of_cores_granted) as executor:
+        for xml_file, _ in zip(xml_dump_file_list, executor.map(process_dump_file, xml_dump_file_list)):
+            print('File {} has been processed successfully: {}'.format(xml_file.name, get_current_timestamp()))
 
     print("Extract triple operations from json revision files.")
     json_revision_folder = get_revision_folders_list()
