@@ -19,3 +19,6 @@ Be aware that not all of these dump dates release the Wikidata history. History 
 
 I executed this script for the Wikidata history dumped on 1st May 2020 and obtained a time stream of approx. 9.3 million triple operations. Accordingly, I named this dataset Wikidata9M and published it at https://github.com/rlafraie/Wikidata9M. As the script requires to download and process a huge amount 
 of data, you may use the Wikidata9M dataset if your use case does not require the change history that has occurred in the meantime.
+
+## License
+Hereby, I declare that I license the script “wikidata_history_extractor.py” under the MIT license whereas I license all datasets that are created with the aforementioned script under the CC BY-SA 4.0 License.
